@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">TestCase</string>
+
+    <string name="status_open">Open</string>
+    <string name="status_closed">Closed</string>
+
 </resources>
