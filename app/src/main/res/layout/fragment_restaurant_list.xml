@@ -7,13 +7,26 @@
     tools:context=".ui.restaurants.RestaurantListFragment">
 
     <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/filterRecyclerview"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/margin_16"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:listitem="@layout/item_filter_card"
+        tools:orientation="horizontal" />
+
+    <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recyclerview"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:layout_marginTop="@dimen/margin_16"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toBottomOf="@id/filterRecyclerview"
+        tools:listitem="@layout/item_restaurant_card" />
 
     <com.google.android.material.progressindicator.CircularProgressIndicator
         android:id="@+id/circular_progress"

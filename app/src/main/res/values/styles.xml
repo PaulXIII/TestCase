@@ -29,6 +29,20 @@
         <item name="cornerSizeBottomLeft">@dimen/card_radius</item>
     </style>
 
+    <style name="FilterCardView" parent="@style/Widget.MaterialComponents.CardView">
+        <item name="shapeAppearanceOverlay">
+            @style/ShapeAppearanceOverlay.MaterialCardView.FilterCut
+        </item>
+    </style>
+
+    <style name="ShapeAppearanceOverlay.MaterialCardView.FilterCut" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeTopRight">@dimen/filter_radius</item>
+        <item name="cornerSizeTopLeft">@dimen/filter_radius</item>
+        <item name="cornerSizeBottomRight">@dimen/filter_radius</item>
+        <item name="cornerSizeBottomLeft">@dimen/filter_radius</item>
+    </style>
+
     <style name="title1">
         <item name="android:textColor">@color/text_color</item>
     </style>
@@ -40,7 +54,7 @@
 
     <style name="subtitle1">
         <item name="android:textSize">@dimen/text_12</item>
-        <item name="android:textColor">@color/Subtitle</item>
+        <item name="android:textColor">@color/subtitle</item>
     </style>
 
     <style name="footer1">
@@ -86,6 +100,10 @@
 
     <style name="RestaurantStatus" parent="title1">
         <item name="android:textSize">@dimen/text_18</item>
+    </style>
+
+    <style name="FilterTitle" parent="title2">
+        <item name="android:textSize">@dimen/text_14</item>
     </style>
 
 </resources>

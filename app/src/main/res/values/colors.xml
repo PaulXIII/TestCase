@@ -10,7 +10,7 @@
 
     <color name="darkText">#1F2B2E</color>
     <color name="lightText">#FFFFFFFF</color>
-    <color name="Subtitle">#999999</color>
+    <color name="subtitle">#999999</color>
     <color name="background">#F8F8F8</color>
     <color name="selected">#E2A364</color>
     <color name="positive">#2ECC71</color>

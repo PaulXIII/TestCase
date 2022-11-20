@@ -1,7 +1,6 @@
 package se.test.testcase.ui.restaurants
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,6 +16,8 @@ import kotlinx.coroutines.flow.onEach
 import se.test.testcase.R
 import se.test.testcase.databinding.FragmentRestaurantListBinding
 import se.test.testcase.ui.details.RestaurantDetailsFragment
+import se.test.testcase.ui.filter.FilterAdapter
+import se.test.testcase.ui.filter.model.FilterUiModel
 import se.test.testcase.ui.restaurants.model.RestaurantUiModel
 import se.test.testcase.ui.state.Status
 
@@ -29,7 +30,7 @@ class RestaurantListFragment : Fragment() {
 
     private val viewModel: RestaurantListViewModel by viewModels()
 
-    private val adapter = RestaurantAdapter {
+    private val restaurantAdapter = RestaurantAdapter {
         parentFragmentManager
             .beginTransaction()
             .replace(R.id.fvContainer, RestaurantDetailsFragment.newInstance(it))
@@ -37,19 +38,46 @@ class RestaurantListFragment : Fragment() {
             .commit()
     }
 
+    private val filterAdapter = FilterAdapter {
+        viewModel.showRestaurantsWithFilter(it)
+    }
+
     private lateinit var binding: FragmentRestaurantListBinding
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
-    ): View? {
+    ): View {
         binding = FragmentRestaurantListBinding.inflate(inflater)
+        setupFilterRecycler()
         setupRecycler()
         return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        loadRestaurants()
+        viewModel
+            .filters
+            .onEach { state ->
+                when (state.status) {
+                    Status.SUCCESS -> showFilterData(state.data)
+                    else -> {
+                        hideFilters()
+                    }
+                }
+            }.launchIn(viewLifecycleOwner.lifecycleScope)
+        viewModel.filteredRestaurants.onEach { state ->
+            when (state.status) {
+                Status.SUCCESS -> showData(state.data)
+                else -> {
+
+                }
+            }
+        }.launchIn(viewLifecycleOwner.lifecycleScope)
+    }
+
+    private fun loadRestaurants() {
         viewModel.loadRestaurants()
         viewModel
             .restaurants
@@ -65,8 +93,7 @@ class RestaurantListFragment : Fragment() {
                         showError(state.message)
                     }
                 }
-            }
-            .launchIn(viewLifecycleOwner.lifecycleScope)
+            }.launchIn(viewLifecycleOwner.lifecycleScope)
     }
 
     private fun showError(message: String?) {
@@ -81,18 +108,36 @@ class RestaurantListFragment : Fragment() {
     private fun showData(restaurants: List<RestaurantUiModel>?) {
         binding.circularProgress.visibility = View.GONE
         if (restaurants != null) {
-            Log.d("Item", "Status data")
             binding.recyclerview.visibility = View.VISIBLE
-            adapter.submitList(restaurants)
+            restaurantAdapter.submitList(restaurants)
         } else {
             binding.recyclerview.visibility = View.GONE
         }
     }
 
-    private fun setupRecycler() {
-        binding.recyclerview.layoutManager =
+    private fun showFilterData(filters: List<FilterUiModel>?) {
+        if (filters != null && filters.isNotEmpty()) {
+            binding.filterRecyclerview.visibility = View.VISIBLE
+            filterAdapter.submitList(filters)
+        } else {
+            hideFilters()
+        }
+    }
+
+    private fun hideFilters() {
+        binding.filterRecyclerview.visibility = View.GONE
+    }
+
+    private fun setupRecycler() = with(binding.recyclerview) {
+        layoutManager =
             LinearLayoutManager(requireContext(), RecyclerView.VERTICAL, false)
-        binding.recyclerview.adapter = adapter
+        adapter = restaurantAdapter
+    }
+
+    private fun setupFilterRecycler() = with(binding.filterRecyclerview) {
+        layoutManager =
+            LinearLayoutManager(requireContext(), RecyclerView.HORIZONTAL, false)
+        adapter = filterAdapter
     }
 
 }

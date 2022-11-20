@@ -14,7 +14,7 @@ import se.test.testcase.data.dto.RestaurantsItem
 import se.test.testcase.domain.usecases.RestaurantCategoriesUseCase
 import se.test.testcase.domain.usecases.RestaurantStatusUseCase
 import se.test.testcase.domain.usecases.RestaurantsUseCase
-import se.test.testcase.ui.restaurants.model.FilterUiModel
+import se.test.testcase.ui.filter.model.FilterUiModel
 import se.test.testcase.ui.restaurants.model.RestaurantStatus
 import se.test.testcase.ui.restaurants.model.RestaurantUiModel
 import se.test.testcase.ui.state.State
@@ -27,8 +27,22 @@ class RestaurantListViewModel @Inject constructor(
     private val restaurantCategoriesUseCase: RestaurantCategoriesUseCase,
 ) : ViewModel() {
 
+    private var restaurantCategories = mapOf<String, FilterUiModel>()
+
+    private val filterIds = mutableSetOf<String>()
+
     private val _restaurants = MutableStateFlow<State<List<RestaurantUiModel>>>(State.loading())
     val restaurants: StateFlow<State<List<RestaurantUiModel>>> get() = _restaurants.asStateFlow()
+
+    private val _filteredRestaurants =
+        MutableStateFlow<State<List<RestaurantUiModel>>>(State.loading())
+    val filteredRestaurants: StateFlow<State<List<RestaurantUiModel>>>
+        get() = _filteredRestaurants.asStateFlow()
+
+    private val _filters =
+        MutableStateFlow<State<List<FilterUiModel>>>(State.empty())
+    val filters: StateFlow<State<List<FilterUiModel>>>
+        get() = _filters.asStateFlow()
 
     fun loadRestaurants() {
         viewModelScope.launch {
@@ -45,6 +59,15 @@ class RestaurantListViewModel @Inject constructor(
                             }
                         }
                     val categories = getRestaurantCategory(restaurantsItemList)
+                    restaurantCategories = categories
+
+                    val loadedFilters = categories.values
+                    _filters.value = if (loadedFilters.isNotEmpty()) {
+                        State.success(loadedFilters.toList())
+                    } else {
+                        State.empty()
+                    }
+
                     val restaurants = restaurantsItemList.map {
                         RestaurantUiModel(
                             id = it.id.orEmpty(),
@@ -59,19 +82,39 @@ class RestaurantListViewModel @Inject constructor(
                             filterIds = it.filterIds?.filterNotNull().orEmpty()
                         )
                     }
-
-                    restaurantsItemList.forEach {
-                        Log.d("Item", "Id: ${it?.id}")
-                        Log.d("Item", "Name: ${it?.name}")
-                        Log.d("Item", "Rating: ${it?.rating}")
-                        Log.d("Item", "=======")
-                    }
                     State.success(restaurants)
                 } catch (exception: Exception) {
                     State.error(exception.message)
                 }
             }
         }
+    }
+
+    fun showRestaurantsWithFilter(filter: FilterUiModel) {
+        checkFilter(filter)
+        val restaurantUiModels = _restaurants.value.data
+        _filteredRestaurants.value = if (filterIds.isNotEmpty()) {
+            State.success(
+                restaurantUiModels?.let { it ->
+                    it.filter { it.filterIds.containsAll(filterIds) }
+                }.orEmpty()
+            )
+        } else {
+            State.success(restaurantUiModels)
+        }
+    }
+
+    private fun checkFilter(filter: FilterUiModel) {
+        val currentFilters = _filters.value.data?.toMutableList()
+        if (!filter.isSelected) {
+            filterIds.add(filter.id)
+        } else {
+            filterIds.remove(filter.id)
+        }
+        currentFilters?.indexOfFirst { it.id == filter.id }?.let { index ->
+            currentFilters[index] = filter.copy(isSelected = !filter.isSelected)
+        }
+        _filters.value = State.success(currentFilters)
     }
 
     private fun getTags(
