@@ -14,7 +14,9 @@ import androidx.recyclerview.widget.RecyclerView
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import se.test.testcase.R
 import se.test.testcase.databinding.FragmentRestaurantListBinding
+import se.test.testcase.ui.details.RestaurantDetailsFragment
 import se.test.testcase.ui.restaurants.model.RestaurantUiModel
 import se.test.testcase.ui.state.Status
 
@@ -27,7 +29,13 @@ class RestaurantListFragment : Fragment() {
 
     private val viewModel: RestaurantListViewModel by viewModels()
 
-    private val adapter = RestaurantAdapter()
+    private val adapter = RestaurantAdapter {
+        parentFragmentManager
+            .beginTransaction()
+            .replace(R.id.fvContainer, RestaurantDetailsFragment.newInstance(it))
+            .addToBackStack(null)
+            .commit()
+    }
 
     private lateinit var binding: FragmentRestaurantListBinding
 

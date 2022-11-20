@@ -15,6 +15,20 @@
         <item name="cornerSizeBottomLeft">0dp</item>
     </style>
 
+    <style name="DetailsCardView" parent="@style/Widget.MaterialComponents.CardView">
+        <item name="shapeAppearanceOverlay">
+            @style/ShapeAppearanceOverlay.MaterialCardView.CutDetails
+        </item>
+    </style>
+
+    <style name="ShapeAppearanceOverlay.MaterialCardView.CutDetails" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSizeTopRight">@dimen/card_radius</item>
+        <item name="cornerSizeTopLeft">@dimen/card_radius</item>
+        <item name="cornerSizeBottomRight">@dimen/card_radius</item>
+        <item name="cornerSizeBottomLeft">@dimen/card_radius</item>
+    </style>
+
     <style name="title1">
         <item name="android:textColor">@color/text_color</item>
     </style>

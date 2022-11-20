@@ -14,7 +14,9 @@ import com.bumptech.glide.request.RequestOptions
 import se.test.testcase.R
 import se.test.testcase.ui.restaurants.model.RestaurantUiModel
 
-class RestaurantAdapter : ListAdapter<RestaurantUiModel, RestaurantAdapter.ViewHolder>(
+class RestaurantAdapter(
+    private val onClick: (item: RestaurantUiModel) -> Unit
+) : ListAdapter<RestaurantUiModel, RestaurantAdapter.ViewHolder>(
     RestaurantModelCallback
 ) {
 
@@ -28,7 +30,7 @@ class RestaurantAdapter : ListAdapter<RestaurantUiModel, RestaurantAdapter.ViewH
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.bind(currentList[position])
+        holder.bind(currentList[position], onClick)
     }
 
     class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -38,7 +40,8 @@ class RestaurantAdapter : ListAdapter<RestaurantUiModel, RestaurantAdapter.ViewH
         private val deliveryTime: AppCompatTextView = itemView.findViewById(R.id.tvDeliveryTime)
         private val rating: AppCompatTextView = itemView.findViewById(R.id.tvRating)
 
-        fun bind(item: RestaurantUiModel) {
+        fun bind(item: RestaurantUiModel, onClick: (item: RestaurantUiModel) -> Unit) {
+            itemView.setOnClickListener { onClick.invoke(item) }
             if (item.imageUrl.isNotEmpty()) {
                 val options = RequestOptions.fitCenterTransform().transform(
                     GranularRoundedCorners(
